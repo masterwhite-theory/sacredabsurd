@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="580" viewBox="0 0 1000 580" role="img" aria-label="Fantasy scene illustration placeholder">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2eadc"/><stop offset="1" stop-color="#e2e8e7"/></linearGradient><linearGradient id="circle" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dfcaa3"/><stop offset="1" stop-color="#d7e0dd"/></linearGradient></defs>
+<rect width="1000" height="580" fill="url(#bg)"/>
+<circle cx="500" cy="276" r="206" fill="none" stroke="#b99d6a" opacity=".6"/><circle cx="500" cy="276" r="173" fill="none" stroke="#b99d6a" opacity=".44"/><circle cx="500" cy="276" r="143" fill="url(#circle)"/>
+<path d="M363 460V270Q363 190 500 134Q637 190 637 270V460Z" fill="none" stroke="#837a78" stroke-width="2"/><path d="M385 460V276Q385 210 500 165Q615 210 615 276V460Z" fill="none" stroke="#837a78" stroke-opacity=".5"/>
+<path d="M315 448H685L760 523H240Z" fill="#b7c0c2" opacity=".7"/><path d="M270 500H730M300 479H700" stroke="#fbf7ef" stroke-width="3"/>
+<path d="M494 389C445 352 422 333 410 286C430 300 443 306 459 326C451 306 452 300 448 284C474 305 486 327 494 354M506 389C555 352 578 333 590 286C570 300 557 306 541 326C549 306 548 300 552 284C526 305 514 327 506 354" stroke="#9a885f" fill="none" stroke-width="2"/>
+<path d="M500 371C482 392 509 418 491 450" fill="none" stroke="#3d648e" stroke-width="12" stroke-linecap="round"/>
+<g fill="none" stroke="#b99d6a" stroke-width="2"><path d="M231 155v26m-13-13h26M785 164v28m-14-14h28M794 383v22m-11-11h22M213 383v22m-11-11h22"/></g>
+<text x="500" y="551" text-anchor="middle" fill="#7e7d82" font-size="12" letter-spacing="5" font-family="Georgia,serif">ILLUSTRATION SPACE / THE SACRED ABSURD</text>
+</svg>

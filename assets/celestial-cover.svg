@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="650" height="770" viewBox="0 0 650 770" role="img" aria-label="Celestial arch illustration">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1a2e52"/><stop offset=".5" stop-color="#33476a"/><stop offset="1" stop-color="#112340"/></linearGradient><linearGradient id="door" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f4e4b7"/><stop offset=".4" stop-color="#d5b985"/><stop offset="1" stop-color="#7488a2"/></linearGradient><linearGradient id="stairs" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#394768"/><stop offset=".5" stop-color="#8390a7"/><stop offset="1" stop-color="#334462"/></linearGradient><radialGradient id="sun"><stop stop-color="#fff6d5"/><stop offset=".6" stop-color="#dfc187"/><stop offset="1" stop-color="#b79b69" stop-opacity="0"/></radialGradient><pattern id="dots" width="35" height="40" patternUnits="userSpaceOnUse"><circle cx="4" cy="5" r=".7" fill="#e1cc9f" opacity=".36"/></pattern></defs>
+<rect width="650" height="770" fill="url(#sky)"/><rect width="650" height="770" fill="url(#dots)"/>
+<rect x="28" y="28" width="594" height="714" fill="none" stroke="#c4a674" stroke-opacity=".45"/><rect x="43" y="43" width="564" height="684" fill="none" stroke="#c4a674" stroke-opacity=".2"/>
+<!-- ornamental rings -->
+<circle cx="325" cy="349" r="248" fill="none" stroke="#cfb887" stroke-opacity=".22"/><circle cx="325" cy="349" r="223" fill="none" stroke="#cfb887" stroke-opacity=".31"/><circle cx="325" cy="349" r="198" fill="none" stroke="#cfb887" stroke-opacity=".25"/><circle cx="325" cy="349" r="176" fill="none" stroke="#cfb887" stroke-opacity=".22"/>
+<!-- pointed architectural arch -->
+<path d="M170 650V316Q170 215 325 112Q480 215 480 316V650Z" fill="#182b48" stroke="#c6a97b" stroke-width="1.8"/>
+<path d="M193 639V326Q193 232 325 142Q457 232 457 326V639Z" fill="#304664" stroke="#c6a97b" stroke-opacity=".46" stroke-width="1"/>
+<path d="M213 636V334Q213 248 325 172Q437 248 437 334V636Z" fill="url(#door)" opacity=".93"/>
+<circle cx="325" cy="337" r="106" fill="url(#sun)"/>
+<circle cx="325" cy="336" r="71" fill="none" stroke="#fff1c9" opacity=".6" stroke-width="1"/>
+<path d="M325 215L325 460M224 337H426M254 266L395 408M395 265L253 408" stroke="#fcf6d9" stroke-opacity=".17"/>
+<!-- wing-like abstract curves -->
+<g fill="none" stroke="#f8ebc6" stroke-width="1.35" opacity=".72">
+<path d="M307 390C256 348 235 336 224 285C244 300 258 301 272 327C269 307 260 292 258 279C282 294 294 316 306 348"/>
+<path d="M343 390C394 348 415 336 426 285C406 300 392 301 378 327C381 307 390 292 392 279C368 294 356 316 344 348"/>
+<path d="M306 374C266 355 247 333 238 316M344 374C384 355 403 333 412 316"/>
+<path d="M305 356C277 327 275 311 273 298M345 356C373 327 375 311 377 298"/>
+</g>
+<!-- blue ribbon as mischievous hair streak -->
+<path d="M329 344C308 382 344 403 320 446C307 473 334 486 312 515" fill="none" stroke="#2e5d9b" stroke-width="16" stroke-linecap="round" opacity=".95"/><path d="M330 342C315 376 338 405 323 443C308 475 334 489 313 516" fill="none" stroke="#75a1ce" stroke-width="2" opacity=".7"/>
+<!-- stairs -->
+<path d="M218 635H431L493 695H156Z" fill="url(#stairs)" stroke="#e3d3b3" stroke-opacity=".5"/>
+<path d="M196 658H455M182 673H468M168 689H483" stroke="#e6d7b6" opacity=".48"/><path d="M325 502V642" stroke="#c8a76e" stroke-width="1" opacity=".4"/>
+<!-- stars + comic tiny annotations -->
+<g fill="#f8e4b6"><circle cx="99" cy="175" r="2"/><circle cx="552" cy="203" r="2"/><circle cx="101" cy="548" r="1.6"/><circle cx="560" cy="511" r="1.5"/></g><g fill="none" stroke="#d0b17a" stroke-width="1.4"><path d="M107 255v25m-12-12h24M532 142v24m-12-12h24M549 560v28m-14-14h28M109 609v20m-10-10h20"/><path d="M80 403l8 8 8-8-8-8zM548 358l7 7 7-7-7-7z"/></g>
+<text x="326" y="89" text-anchor="middle" fill="#dbcca9" font-size="13" letter-spacing="6" font-family="Georgia,serif">✦  HEAVEN  /  HELL  /  OTHER  ✦</text>
+<text x="326" y="725" text-anchor="middle" fill="#cdb68b" font-size="11" letter-spacing="4" font-family="Georgia,serif">THE DIVINE DEPARTMENT OF UNEXPECTED EVENTS</text>
+</svg>
