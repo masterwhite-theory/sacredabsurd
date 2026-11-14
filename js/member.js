@@ -6,7 +6,7 @@ const page=document.body.dataset.page||'';
 let profile=null;
 function btn(){
   const a=$('.header-actions');if(!a||$('.member-btn'))return;
-  const b=document.createElement('button');b.className='icon-button member-btn';b.type='button';b.setAttribute('aria-label','สมาชิก');b.title='สมาชิก';b.innerHTML='<span class="member-ico">◉</span>';
+  const b=document.createElement('button');b.className='member-btn is-out';b.type='button';b.setAttribute('aria-label','เข้าสู่ระบบด้วย LINE');b.title='เข้าสู่ระบบด้วย LINE';b.innerHTML='Log in';
   a.insertBefore(b,a.firstChild);
   const pop=document.createElement('div');pop.className='member-pop';pop.hidden=true;document.body.appendChild(pop);
   b.onclick=()=>{ if(!window.liff||!liff.isLoggedIn()){login();return;} pop.hidden=!pop.hidden; };
@@ -16,7 +16,7 @@ function login(){ if(window.liff) liff.login({redirectUri:location.href}); }
 function paint(){
   const b=$('.member-btn'),pop=$('.member-pop');if(!b)return;
   if(profile){
-    b.innerHTML=profile.pictureUrl?`<img class="member-av" src="${profile.pictureUrl}" alt="">`:'<span class="member-ico">●</span>';
+    b.classList.remove('is-out');b.classList.add('icon-button');b.setAttribute('aria-label','บัญชีสมาชิก');b.title=profile.displayName||'สมาชิก';b.innerHTML=profile.pictureUrl?`<img class="member-av" src="${profile.pictureUrl}" alt="">`:'<span class="member-ico">●</span>';
     const last=LS.get('tsa-last');
     pop.innerHTML=`<p class="member-hi">สวัสดี <b></b></p>${last?`<a class="member-resume" href="chapter.html?n=${last.n}">อ่านต่อ ตอนที่ ${last.n} →</a>`:''}<p class="member-note">${M.api?'ระบบจำตอนที่อ่านไว้ให้ทุกเครื่องที่ล็อกอิน':'เชื่อมบัญชีแล้ว'}</p><button type="button" class="member-out">ออกจากระบบ</button>`;
     pop.querySelector('b').textContent=profile.displayName||'';
