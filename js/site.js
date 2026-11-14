@@ -184,6 +184,11 @@ if(minus&&plus){minus.addEventListener('click',()=>{applyFontSize(currentFontSiz
    <button type="button" class="button primary cart-send">ส่งคำสั่งซื้อทาง LINE ↗</button><button type="button" class="cart-clear">ล้างตะกร้า</button><p class="cart-note">แอดมินจะยืนยันยอดและที่อยู่จัดส่งในแชท</p>`:`<p class="cart-empty">ยังไม่มีสินค้าในตะกร้า<br><a href="fragrances.html">เลือกกลิ่น ↗</a></p>`);
  }
 
+function resumeUI(){try{
+ if(page==='chapter'){const n=new URLSearchParams(location.search).get('n');if(n){const c=(data.acts||[]).flatMap(a=>a.chapters).find(c=>String(c.n)===n);localStorage.setItem('tsa-last',JSON.stringify({n:+n,t:c?c.title:''}));}}
+ const r=document.getElementById('resume');if(r){const v=JSON.parse(localStorage.getItem('tsa-last')||'null');if(v&&v.n>1){r.href='chapter.html?n='+v.n;r.querySelector('strong').textContent='ตอนที่ '+v.n+(v.t?' / '+v.t:'');r.hidden=false;}}
+}catch(e){}}
+
 function renderFragrances(){
  const mount=$('#scent-list');if(!mount)return;
  const toc=document.getElementById('scent-toc');if(toc){toc.innerHTML=`<div class="scent-toc-head"><span>INDEX · สารบัญกลิ่น</span><span>${data.scents.length} SCENTS</span></div><ol>${data.scents.map(s=>`<li><a href="#${safe(s.id)}"><span class="toc-code">${safe(s.tag)}</span><span><span class="toc-name">${safe(s.name)}</span><span class="toc-thai">${safe(s.thai)}</span></span><span class="toc-arrow" aria-hidden="true">↓</span></a></li>`).join('')}</ol>`;}
@@ -196,7 +201,7 @@ function renderFragrances(){
     <div class="scent-bottom"><small>READ THE STORY ↗</small><a class="to-toc" href="#scent-toc">↑ สารบัญกลิ่น</a><div class="related-chapters">${s.chapters.map(n=>`<a href="${chapterHref(n)}">ตอนที่ ${n}</a>`).join('')}</div></div></div>
   </article>`).join('');
 }
-fixChatLinks();cartUI();if(page==='contents')renderToc();
+fixChatLinks();cartUI();resumeUI();if(page==='contents')renderToc();
 if(page==='chapter')renderChapter();
 if(page==='fragrances')renderFragrances();
 })();
