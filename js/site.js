@@ -95,7 +95,7 @@ async function renderChapter(){
  if(fragrance){ctaName=fragrance.name;ctaDesc=fragrance.desc;notes=fragrance.notes;noteType=fragrance.note_type;}
  $('#cta-name').textContent=ctaName;$('#cta-desc').textContent=ctaDesc;
  $('#cta-notes').className='';$('#cta-notes').innerHTML=fragrance?notesHtml(fragrance)+priceHtml(fragrance):'';if(fragrance&&fragrance.available)$('#cta-button').hidden=true;$('#cta-note-type').textContent=noteType;
- $('#cta-button').href=data.chatUrl;
+ $('#cta-button').href=lineMsg(`สวัสดีค่ะ มาจากเว็บนิยาย sacredabsurd.com\nอ่านตอนที่ ${n}: ${chapter.title}\n`+(fragrance?`สนใจกลิ่น: ${fragrance.name} (${fragrance.tag})`:'อยากสอบถามกลิ่นค่ะ'));
  const prev=$('#previous-chapter'),next=$('#next-chapter');
  function setupNav(el,id,word){
     const c=byNumber.get(id);if(!c){el.setAttribute('aria-disabled','true');el.href='contents.html';el.querySelector('span').textContent='—';return;}
@@ -124,15 +124,17 @@ function applyFontSize(next=currentFontSize){
 const minus=$('#font-decrease'),plus=$('#font-increase');
 if(minus&&plus){minus.addEventListener('click',()=>{applyFontSize(currentFontSize-1);store.set('tsa-font-size',currentFontSize)});plus.addEventListener('click',()=>{applyFontSize(currentFontSize+1);store.set('tsa-font-size',currentFontSize)});}
 /* scent index */
+ function lineMsg(t){return data.lineId?`https://line.me/R/oaMessage/${encodeURIComponent(data.lineId)}/?${encodeURIComponent(t)}`:data.chatUrl;}
+ function fixChatLinks(t){document.querySelectorAll('a[href="'+data.chatUrl+'"]').forEach(a=>a.href=lineMsg(t||'สวัสดีค่ะ มาจากเว็บ sacredabsurd.com'));}
  function notesHtml(s){
    if(s&&s.pyramid){return `<div class="note-pyramid">${Object.entries(s.pyramid).map(([k,v])=>`<div class="note-row"><b>${safe(k)}</b><span>${v.map(safe).join(' · ')}</span></div>`).join('')}</div>`;}
    const n=(s&&s.notes)||[];return n.length?`<div class="note-tags">${n.map(x=>`<span>${safe(x)}</span>`).join('')}</div>`:'';
  }
  function boardHtml(s){return s&&s.board?`<a class="board-link" href="${safe(s.board)}" target="_blank" rel="noopener">ดู Concept Board ↗</a>`:'';}
  function priceHtml(s){
-   if(s&&!s.available&&s.image)return `${boardHtml(s)}<p class="soon-note">✦ กำลังพัฒนาสูตร · ทัก LINE เพื่อรับแจ้งเมื่อเปิดขาย</p>`;
+   if(s&&!s.available&&s.image)return `${boardHtml(s)}<p class="soon-note">✦ กำลังพัฒนาสูตร · <a href="${lineMsg(`สวัสดีค่ะ มาจากเว็บ sacredabsurd.com\nขอรับแจ้งเมื่อเปิดขายกลิ่น: ${s.name} (${s.tag})`)}" target="_blank" rel="noopener">ทัก LINE เพื่อรับแจ้งเมื่อเปิดขาย</a></p>`;
    if(!s||!s.available||!data.pricing||!data.pricing.length)return '';
-   return `<div class="price-box"><div class="price-list">${data.pricing.map(([z,p])=>`<span>${safe(z)}<b>฿${Number(p).toLocaleString('en-US')}</b></span>`).join('')}</div>${data.promo&&data.promo.length?`<ul class="promo-list">${data.promo.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`:''}${data.promoNote?`<p class="promo-note">${safe(data.promoNote)}</p>`:''}${boardHtml(s)}<a class="button primary buy-button" href="${safe(data.chatUrl)}" target="_blank" rel="noopener noreferrer">สั่งซื้อทาง LINE <span aria-hidden="true">↗</span></a></div>`;
+   return `<div class="price-box"><div class="price-list">${data.pricing.map(([z,p])=>`<span>${safe(z)}<b>฿${Number(p).toLocaleString('en-US')}</b></span>`).join('')}</div>${data.promo&&data.promo.length?`<ul class="promo-list">${data.promo.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`:''}${data.promoNote?`<p class="promo-note">${safe(data.promoNote)}</p>`:''}${boardHtml(s)}<a class="button primary buy-button" href="${lineMsg(`สวัสดีค่ะ สั่งจากเว็บ sacredabsurd.com\nสนใจกลิ่น: ${s.name} (${s.tag})\nขนาดที่ต้องการ: `)}" target="_blank" rel="noopener noreferrer">สั่งซื้อทาง LINE <span aria-hidden="true">↗</span></a></div>`;
  }
 
 function renderFragrances(){
@@ -147,7 +149,7 @@ function renderFragrances(){
     <div class="scent-bottom"><small>READ THE STORY ↗</small><a class="to-toc" href="#scent-toc">↑ สารบัญกลิ่น</a><div class="related-chapters">${s.chapters.map(n=>`<a href="${chapterHref(n)}">ตอนที่ ${n}</a>`).join('')}</div></div></div>
   </article>`).join('');
 }
-if(page==='contents')renderToc();
+fixChatLinks();if(page==='contents')renderToc();
 if(page==='chapter')renderChapter();
 if(page==='fragrances')renderFragrances();
 })();
