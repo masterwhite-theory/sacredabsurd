@@ -94,7 +94,7 @@ async function renderChapter(){
  let ctaName='THE SACRED ABSURD COLLECTION',ctaDesc='ทุกเรื่องในจักรวาลนี้เกิดจากกลิ่น อยากดมตัวจริง ทักแชทมาคุยกับนักปรุงได้เลย',notes=[],noteType='';
  if(fragrance){ctaName=fragrance.name;ctaDesc=fragrance.desc;notes=fragrance.notes;noteType=fragrance.note_type;}
  $('#cta-name').textContent=ctaName;$('#cta-desc').textContent=ctaDesc;
- $('#cta-notes').innerHTML=notes.map(v=>`<span>${safe(v)}</span>`).join('');$('#cta-note-type').textContent=noteType;
+ $('#cta-notes').className='';$('#cta-notes').innerHTML=fragrance?notesHtml(fragrance)+priceHtml(fragrance):'';if(fragrance&&fragrance.available)$('#cta-button').hidden=true;$('#cta-note-type').textContent=noteType;
  $('#cta-button').href=data.chatUrl;
  const prev=$('#previous-chapter'),next=$('#next-chapter');
  function setupNav(el,id,word){
@@ -124,14 +124,23 @@ function applyFontSize(next=currentFontSize){
 const minus=$('#font-decrease'),plus=$('#font-increase');
 if(minus&&plus){minus.addEventListener('click',()=>{applyFontSize(currentFontSize-1);store.set('tsa-font-size',currentFontSize)});plus.addEventListener('click',()=>{applyFontSize(currentFontSize+1);store.set('tsa-font-size',currentFontSize)});}
 /* scent index */
+ function notesHtml(s){
+   if(s&&s.pyramid){return `<div class="note-pyramid">${Object.entries(s.pyramid).map(([k,v])=>`<div class="note-row"><b>${safe(k)}</b><span>${v.map(safe).join(' · ')}</span></div>`).join('')}</div>`;}
+   const n=(s&&s.notes)||[];return n.length?`<div class="note-tags">${n.map(x=>`<span>${safe(x)}</span>`).join('')}</div>`:'';
+ }
+ function priceHtml(s){
+   if(!s||!s.available||!data.pricing||!data.pricing.length)return '';
+   return `<div class="price-box"><div class="price-list">${data.pricing.map(([z,p])=>`<span>${safe(z)}<b>฿${Number(p).toLocaleString('en-US')}</b></span>`).join('')}</div>${data.promo&&data.promo.length?`<ul class="promo-list">${data.promo.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`:''}${data.promoNote?`<p class="promo-note">${safe(data.promoNote)}</p>`:''}<a class="button primary buy-button" href="${safe(data.chatUrl)}" target="_blank" rel="noopener noreferrer">สั่งซื้อทาง LINE <span aria-hidden="true">↗</span></a></div>`;
+ }
+
 function renderFragrances(){
  const mount=$('#scent-list');if(!mount)return;
  const toc=document.getElementById('scent-toc');if(toc){toc.innerHTML=`<div class="scent-toc-head"><span>INDEX · สารบัญกลิ่น</span><span>${data.scents.length} SCENTS</span></div><ol>${data.scents.map(s=>`<li><a href="#${safe(s.id)}"><span class="toc-code">${safe(s.tag)}</span><span><span class="toc-name">${safe(s.name)}</span><span class="toc-thai">${safe(s.thai)}</span></span><span class="toc-arrow" aria-hidden="true">↓</span></a></li>`).join('')}</ol>`;}
  mount.innerHTML=data.scents.map((s,i)=>`<article class="scent-card" id="${safe(s.id)}">
-   <div class="scent-art" data-tone="${i}"><div class="mini-flacon" aria-hidden="true"><strong>WHITE</strong><em>theory</em><span>${safe(s.name)}</span></div></div>
+   <div class="scent-art${s.image?' has-photo':''}" data-tone="${i}">${s.image?`<img src="${safe(s.image)}" alt="${safe(s.name)}" loading="lazy">`:`<div class="mini-flacon" aria-hidden="true"><strong>WHITE</strong><em>theory</em><span>${safe(s.name)}</span></div>`}</div>
    <div class="scent-content"><div><div class="scent-code">SCENT FILE / ${String(i+1).padStart(2,'0')} · ${safe(s.tag)}</div><h2>${safe(s.name)}</h2><h3>${safe(s.thai)}</h3></div>
     <p>${safe(s.desc)}</p>
-    <div class="note-tags">${s.notes.length?s.notes.map(n=>`<span>${safe(n)}</span>`).join(''):``}</div>
+    ${notesHtml(s)}${priceHtml(s)}
     <p class="cta-note-type">${safe(s.note_type)}</p>
     <div class="scent-bottom"><small>READ THE STORY ↗</small><a class="to-toc" href="#scent-toc">↑ สารบัญกลิ่น</a><div class="related-chapters">${s.chapters.map(n=>`<a href="${chapterHref(n)}">ตอนที่ ${n}</a>`).join('')}</div></div></div>
   </article>`).join('');
