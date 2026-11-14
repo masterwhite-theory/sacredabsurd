@@ -15,4 +15,6 @@ jobs:
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then echo "No CLOUDFLARE_API_TOKEN secret yet, skipping"; exit 0; fi
           if grep -q 'KV_ID\|ACCOUNT_ID' worker/wrangler.toml; then echo "wrangler.toml not filled yet, skipping"; exit 0; fi
-          cd worker && npx --yes wrangler@4 deploy
+          T=$(printf '%s' "$CLOUDFLARE_API_TOKEN" | grep -oE '[A-Za-z0-9_-]{40,}' | head -1)
+          echo "::add-mask::$T"
+          cd worker && CLOUDFLARE_API_TOKEN="$T" npx --yes wrangler@4 deploy
