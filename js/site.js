@@ -128,9 +128,11 @@ if(minus&&plus){minus.addEventListener('click',()=>{applyFontSize(currentFontSiz
    if(s&&s.pyramid){return `<div class="note-pyramid">${Object.entries(s.pyramid).map(([k,v])=>`<div class="note-row"><b>${safe(k)}</b><span>${v.map(safe).join(' · ')}</span></div>`).join('')}</div>`;}
    const n=(s&&s.notes)||[];return n.length?`<div class="note-tags">${n.map(x=>`<span>${safe(x)}</span>`).join('')}</div>`:'';
  }
+ function boardHtml(s){return s&&s.board?`<a class="board-link" href="${safe(s.board)}" target="_blank" rel="noopener">ดู Concept Board ↗</a>`:'';}
  function priceHtml(s){
+   if(s&&!s.available&&s.image)return `${boardHtml(s)}<p class="soon-note">✦ กำลังพัฒนาสูตร · ทัก LINE เพื่อรับแจ้งเมื่อเปิดขาย</p>`;
    if(!s||!s.available||!data.pricing||!data.pricing.length)return '';
-   return `<div class="price-box"><div class="price-list">${data.pricing.map(([z,p])=>`<span>${safe(z)}<b>฿${Number(p).toLocaleString('en-US')}</b></span>`).join('')}</div>${data.promo&&data.promo.length?`<ul class="promo-list">${data.promo.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`:''}${data.promoNote?`<p class="promo-note">${safe(data.promoNote)}</p>`:''}<a class="button primary buy-button" href="${safe(data.chatUrl)}" target="_blank" rel="noopener noreferrer">สั่งซื้อทาง LINE <span aria-hidden="true">↗</span></a></div>`;
+   return `<div class="price-box"><div class="price-list">${data.pricing.map(([z,p])=>`<span>${safe(z)}<b>฿${Number(p).toLocaleString('en-US')}</b></span>`).join('')}</div>${data.promo&&data.promo.length?`<ul class="promo-list">${data.promo.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`:''}${data.promoNote?`<p class="promo-note">${safe(data.promoNote)}</p>`:''}${boardHtml(s)}<a class="button primary buy-button" href="${safe(data.chatUrl)}" target="_blank" rel="noopener noreferrer">สั่งซื้อทาง LINE <span aria-hidden="true">↗</span></a></div>`;
  }
 
 function renderFragrances(){
