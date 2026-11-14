@@ -90,7 +90,7 @@ async function renderChapter(){
    mount.innerHTML=`<h2 class="scene-heading">I. THE STORY CONTINUES</h2>
      <div class="missing-copy"><h3>Coming to the reading room.</h3><p>ตอนที่ ${String(n).padStart(3,'0')} — ${safe(chapter.title)}</p><p>ข้อมูลชื่อและคำโปรยนำมาจากสารบัญต้นฉบับแล้ว แต่ยังไม่ได้วางเนื้อหาเต็มในชุดเทมเพลตนี้</p><a href="contents.html#${romanToId(chapter.act)}">กลับไปเลือกตอนใน ACT ${safe(chapter.act)} ↗</a></div>`;
  }
- const fragrance=data.scents.find(s=>s.chapters.includes(n));
+ const fragrance=data.scents.find(s=>s.chapters.includes(n)&&s.name.toUpperCase()===String(chapter.title).toUpperCase())||data.scents.find(s=>s.chapters.includes(n));
  let ctaName='THE SACRED ABSURD COLLECTION',ctaDesc='ทุกเรื่องในจักรวาลนี้เกิดจากกลิ่น อยากดมตัวจริง ทักแชทมาคุยกับนักปรุงได้เลย',notes=[],noteType='';
  if(fragrance){ctaName=fragrance.name;ctaDesc=fragrance.desc;notes=fragrance.notes;noteType=fragrance.note_type;}
  $('#cta-name').textContent=ctaName;$('#cta-desc').textContent=ctaDesc;
