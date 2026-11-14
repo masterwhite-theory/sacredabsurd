@@ -1,8 +1,8 @@
 name = "sacredabsurd-member"
 main = "index.js"
 compatibility_date = "2026-10-01"
-account_id = "ACCOUNT_ID"
+account_id = "28d749e5ef4ec9f9fd9672ec8756f2b4"
 
 [[kv_namespaces]]
 binding = "PROGRESS"
-id = "KV_ID"
+id = "5a2efe6da10d4c849d74b26aba6e0d82"
