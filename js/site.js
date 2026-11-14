@@ -134,7 +134,54 @@ if(minus&&plus){minus.addEventListener('click',()=>{applyFontSize(currentFontSiz
  function priceHtml(s){
    if(s&&!s.available&&s.image)return `${boardHtml(s)}<p class="soon-note">✦ กำลังพัฒนาสูตร · <a href="${lineMsg(`สวัสดีค่ะ มาจากเว็บ sacredabsurd.com\nขอรับแจ้งเมื่อเปิดขายกลิ่น: ${s.name} (${s.tag})`)}" target="_blank" rel="noopener">ทัก LINE เพื่อรับแจ้งเมื่อเปิดขาย</a></p>`;
    if(!s||!s.available||!data.pricing||!data.pricing.length)return '';
-   return `<div class="price-box"><div class="price-list">${data.pricing.map(([z,p])=>`<span>${safe(z)}<b>฿${Number(p).toLocaleString('en-US')}</b></span>`).join('')}</div>${data.promo&&data.promo.length?`<ul class="promo-list">${data.promo.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`:''}${data.promoNote?`<p class="promo-note">${safe(data.promoNote)}</p>`:''}${boardHtml(s)}<a class="button primary buy-button" href="${lineMsg(`สวัสดีค่ะ สั่งจากเว็บ sacredabsurd.com\nสนใจกลิ่น: ${s.name} (${s.tag})\nขนาดที่ต้องการ: `)}" target="_blank" rel="noopener noreferrer">สั่งซื้อทาง LINE <span aria-hidden="true">↗</span></a></div>`;
+   return `<div class="price-box">${buyBox(s)}${data.promo&&data.promo.length?`<ul class="promo-list">${data.promo.map(x=>`<li>${safe(x)}</li>`).join('')}</ul>`:''}${boardHtml(s)}</div>`;
+ }
+ /* ---- cart ---- */
+ const CART_KEY='tsa-cart';
+ function cartGet(){try{return JSON.parse(localStorage.getItem(CART_KEY)||'[]')}catch(e){return []}}
+ function cartSet(c){try{localStorage.setItem(CART_KEY,JSON.stringify(c))}catch(e){} cartRender();}
+ const baht=v=>'฿'+Math.round(v).toLocaleString('en-US');
+ function lineTotal(it){const base=it.price*it.qty;return /^100/.test(it.size)?base*0.85:base;}
+ function perks(it){const x=it.qty>1?' ×'+it.qty:'';const p=[];if(/^50/.test(it.size))p.push('แถม 15 ml'+x);if(/^100/.test(it.size))p.push('ลด 15% + แถม 15 ml'+x);return p.join(' · ');}
+ function cartMsg(c){
+   let t='สวัสดีค่ะ สั่งจากเว็บ sacredabsurd.com\nรายการสั่งซื้อ:\n';let sum=0;
+   c.forEach((it,i)=>{const lt=lineTotal(it);sum+=lt;t+=`${i+1}) ${it.name} (${it.tag}) ${it.size} x${it.qty} = ${baht(lt)}${perks(it)?' ['+perks(it)+']':''}\n`;});
+   t+=`รวมโดยประมาณ ${baht(sum)}\nส่งฟรี + ของที่ระลึก + ตัวอย่างกลิ่น 2 ml อีก 2 กลิ่น`;return t;
+ }
+ function scentById(id){return (data.scents||[]).find(x=>x.tag===id);}
+ function buyBox(s){
+   const uid=s.tag+'-'+Math.random().toString(36).slice(2,7);
+   return `<div class="buy-box" data-sid="${safe(s.tag)}"><div class="size-pick" role="radiogroup" aria-label="เลือกขนาด">${data.pricing.map(([z,p],i)=>`<label class="size-opt"><input type="radio" name="sz-${uid}" value="${i}" ${i===2?'checked':''}><span>${safe(z)}<b>฿${Number(p).toLocaleString('en-US')}</b></span></label>`).join('')}</div>
+   <div class="qty-row"><span class="qty-label">จำนวน</span><div class="qty"><button type="button" data-q="-1" aria-label="ลด">−</button><output>1</output><button type="button" data-q="1" aria-label="เพิ่ม">+</button></div></div>
+   <div class="buy-actions"><button type="button" class="button outline add-cart">ใส่ตะกร้า</button><button type="button" class="button primary buy-now">สั่งเลยทาง LINE ↗</button></div></div>`;
+ }
+ function readBox(box){const s=scentById(box.dataset.sid);const i=Number((box.querySelector('input:checked')||{}).value||0);const qty=Number(box.querySelector('output').textContent)||1;const [size,price]=data.pricing[i];return {tag:s.tag,name:s.name,size,price,qty};}
+ function cartUI(){
+   if(document.getElementById('cart-fab'))return;
+   const fab=document.createElement('button');fab.id='cart-fab';fab.type='button';fab.className='cart-fab';fab.setAttribute('aria-label','ตะกร้าสินค้า');fab.innerHTML='<span class="cart-ico">🛍</span><span class="cart-count">0</span>';
+   const dr=document.createElement('aside');dr.id='cart-drawer';dr.className='cart-drawer';dr.hidden=true;dr.setAttribute('aria-label','ตะกร้าสินค้า');
+   document.body.append(fab,dr);
+   fab.onclick=()=>{dr.hidden=!dr.hidden;};
+   document.addEventListener('click',e=>{
+     const q=e.target.closest('.buy-box .qty button');if(q){const o=q.parentNode.querySelector('output');o.textContent=Math.max(1,Number(o.textContent)+Number(q.dataset.q));return;}
+     const add=e.target.closest('.add-cart');if(add){const it=readBox(add.closest('.buy-box'));const c=cartGet();const ex=c.find(x=>x.tag===it.tag&&x.size===it.size);if(ex)ex.qty+=it.qty;else c.push(it);cartSet(c);try{fbq('track','AddToCart',{content_ids:[it.tag],content_name:it.name,value:it.price*it.qty,currency:'THB'})}catch(err){}
+       add.closest('.buy-box').querySelector('output').textContent='1';add.textContent='เพิ่มแล้ว ✓';setTimeout(()=>add.textContent='ใส่ตะกร้า',1400);fab.classList.add('bump');setTimeout(()=>fab.classList.remove('bump'),500);return;}
+     const now=e.target.closest('.buy-now');if(now){const it=readBox(now.closest('.buy-box'));try{fbq('track','InitiateCheckout',{content_ids:[it.tag],value:lineTotal(it),currency:'THB'})}catch(err){}window.open(lineMsg(cartMsg([it])),'_blank');return;}
+     const cq=e.target.closest('[data-cq]');if(cq){const c=cartGet();const k=Number(cq.dataset.i);c[k].qty+=Number(cq.dataset.cq);if(c[k].qty<1)c.splice(k,1);cartSet(c);return;}
+     if(e.target.closest('.cart-close')){dr.hidden=true;return;}
+     if(e.target.closest('.cart-clear')){cartSet([]);return;}
+     if(e.target.closest('.cart-send')){const c=cartGet();if(!c.length)return;try{fbq('track','InitiateCheckout',{content_ids:c.map(x=>x.tag),value:c.reduce((a,x)=>a+lineTotal(x),0),currency:'THB'})}catch(err){}window.open(lineMsg(cartMsg(c)),'_blank');return;}
+   });
+   cartRender();
+ }
+ function cartRender(){
+   const c=cartGet(),fab=document.getElementById('cart-fab'),dr=document.getElementById('cart-drawer');if(!fab)return;
+   const n=c.reduce((a,x)=>a+x.qty,0);fab.querySelector('.cart-count').textContent=n;fab.classList.toggle('empty',!n);
+   const sum=c.reduce((a,x)=>a+lineTotal(x),0);
+   dr.innerHTML=`<div class="cart-head"><b>ตะกร้าสินค้า</b><button type="button" class="cart-close" aria-label="ปิด">✕</button></div>`+
+   (c.length?`<ul class="cart-list">${c.map((it,i)=>`<li><div><strong>${safe(it.name)}</strong><small>${safe(it.tag)} · ${safe(it.size)} · ${baht(it.price)}${perks(it)?' · '+perks(it):''}</small></div><div class="qty"><button type="button" data-cq="-1" data-i="${i}">−</button><output>${it.qty}</output><button type="button" data-cq="1" data-i="${i}">+</button></div><span class="cart-lt">${baht(lineTotal(it))}</span></li>`).join('')}</ul>
+   <div class="cart-sum"><span>รวมโดยประมาณ</span><b>${baht(sum)}</b></div><p class="cart-perk">ส่งฟรีทุกออเดอร์ · ของที่ระลึก + ตัวอย่างกลิ่น 2 ml อีก 2 กลิ่น</p>
+   <button type="button" class="button primary cart-send">ส่งคำสั่งซื้อทาง LINE ↗</button><button type="button" class="cart-clear">ล้างตะกร้า</button><p class="cart-note">แอดมินจะยืนยันยอดและที่อยู่จัดส่งในแชท</p>`:`<p class="cart-empty">ยังไม่มีสินค้าในตะกร้า<br><a href="fragrances.html">เลือกกลิ่น ↗</a></p>`);
  }
 
 function renderFragrances(){
@@ -149,7 +196,7 @@ function renderFragrances(){
     <div class="scent-bottom"><small>READ THE STORY ↗</small><a class="to-toc" href="#scent-toc">↑ สารบัญกลิ่น</a><div class="related-chapters">${s.chapters.map(n=>`<a href="${chapterHref(n)}">ตอนที่ ${n}</a>`).join('')}</div></div></div>
   </article>`).join('');
 }
-fixChatLinks();if(page==='contents')renderToc();
+fixChatLinks();cartUI();if(page==='contents')renderToc();
 if(page==='chapter')renderChapter();
 if(page==='fragrances')renderFragrances();
 })();
