@@ -184,8 +184,8 @@ if(minus&&plus){minus.addEventListener('click',()=>{applyFontSize(currentFontSiz
    <button type="button" class="button primary cart-send">ส่งคำสั่งซื้อทาง LINE ↗</button><button type="button" class="cart-clear">ล้างตะกร้า</button><p class="cart-note">แอดมินจะยืนยันยอดและที่อยู่จัดส่งในแชท</p>`:`<p class="cart-empty">ยังไม่มีสินค้าในตะกร้า<br><a href="fragrances.html">เลือกกลิ่น ↗</a></p>`);
  }
 
-function resumeUI(){try{
- if(page==='chapter'){const n=new URLSearchParams(location.search).get('n');if(n){const c=(data.acts||[]).flatMap(a=>a.chapters).find(c=>String(c.n)===n);localStorage.setItem('tsa-last',JSON.stringify({n:+n,t:c?c.title:''}));}}
+window.resumeUI=resumeUI;function resumeUI(){try{
+ if(page==='chapter'){const n=new URLSearchParams(location.search).get('n');if(n){const c=(data.acts||[]).flatMap(a=>a.chapters).find(c=>String(c.n)===n);localStorage.setItem('tsa-last',JSON.stringify({n:+n,t:c?c.title:'',ts:Date.now()}));}}
  const r=document.getElementById('resume');if(r){const v=JSON.parse(localStorage.getItem('tsa-last')||'null');if(v&&v.n>1){r.href='chapter.html?n='+v.n;r.querySelector('strong').textContent='ตอนที่ '+v.n+(v.t?' / '+v.t:'');r.hidden=false;}}
 }catch(e){}}
 
