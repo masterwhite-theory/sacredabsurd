@@ -126,13 +126,14 @@ if(minus&&plus){minus.addEventListener('click',()=>{applyFontSize(currentFontSiz
 /* scent index */
 function renderFragrances(){
  const mount=$('#scent-list');if(!mount)return;
+ const toc=document.getElementById('scent-toc');if(toc){toc.innerHTML=`<div class="scent-toc-head"><span>INDEX · สารบัญกลิ่น</span><span>${data.scents.length} SCENTS</span></div><ol>${data.scents.map(s=>`<li><a href="#${safe(s.id)}"><span class="toc-code">${safe(s.tag)}</span><span><span class="toc-name">${safe(s.name)}</span><span class="toc-thai">${safe(s.thai)}</span></span><span class="toc-arrow" aria-hidden="true">↓</span></a></li>`).join('')}</ol>`;}
  mount.innerHTML=data.scents.map((s,i)=>`<article class="scent-card" id="${safe(s.id)}">
    <div class="scent-art" data-tone="${i}"><div class="mini-flacon" aria-hidden="true"><strong>WHITE</strong><em>theory</em><span>${safe(s.name)}</span></div></div>
    <div class="scent-content"><div><div class="scent-code">SCENT FILE / ${String(i+1).padStart(2,'0')} · ${safe(s.tag)}</div><h2>${safe(s.name)}</h2><h3>${safe(s.thai)}</h3></div>
     <p>${safe(s.desc)}</p>
     <div class="note-tags">${s.notes.length?s.notes.map(n=>`<span>${safe(n)}</span>`).join(''):``}</div>
     <p class="cta-note-type">${safe(s.note_type)}</p>
-    <div class="scent-bottom"><small>READ THE STORY ↗</small><div class="related-chapters">${s.chapters.map(n=>`<a href="${chapterHref(n)}">ตอนที่ ${n}</a>`).join('')}</div></div></div>
+    <div class="scent-bottom"><small>READ THE STORY ↗</small><a class="to-toc" href="#scent-toc">↑ สารบัญกลิ่น</a><div class="related-chapters">${s.chapters.map(n=>`<a href="${chapterHref(n)}">ตอนที่ ${n}</a>`).join('')}</div></div></div>
   </article>`).join('');
 }
 if(page==='contents')renderToc();
