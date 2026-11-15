@@ -3,9 +3,19 @@ const CHANNEL = '2012610836';
 const ORIGINS = ['https://sacredabsurd.com', 'https://www.sacredabsurd.com', 'http://localhost:8765'];
 function cors(req) {
   const o = req.headers.get('origin') || '';
-  return { 'access-control-allow-origin': ORIGINS.includes(o) ? o : ORIGINS[0], 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-headers': 'content-type', 'vary': 'origin' };
+  return { 'access-control-allow-origin': ORIGINS.includes(o) ? o : ORIGINS[0], 'access-control-allow-methods': 'GET, POST, OPTIONS', 'access-control-allow-headers': 'content-type', 'vary': 'origin' };
 }
 const json = (req, body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...cors(req) } });
+async function profile(token) {
+  if (!token) return null;
+  const v = await fetch('https://api.line.me/oauth2/v2.1/verify?access_token=' + encodeURIComponent(token));
+  if (!v.ok) return null;
+  const vj = await v.json();
+  if (String(vj.client_id) !== CHANNEL || !(vj.expires_in > 0)) return null;
+  const p = await fetch('https://api.line.me/v2/profile', { headers: { authorization: 'Bearer ' + token } });
+  if (!p.ok) return null;
+  return await p.json();
+}
 async function userId(token) {
   if (!token) return null;
   const v = await fetch('https://api.line.me/oauth2/v2.1/verify?access_token=' + encodeURIComponent(token));
@@ -19,10 +29,51 @@ async function userId(token) {
 export default {
   async fetch(req, env) {
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors(req) });
+    const url = new URL(req.url), path = url.pathname;
+    if (req.method === 'GET' && path === '/comments') {
+      const ep = parseInt(url.searchParams.get('ep'), 10);
+      if (!(ep > 0 && ep < 10000)) return json(req, { error: 'bad ep' }, 400);
+      const list = (await env.PROGRESS.get('c:' + ep, 'json')) || [];
+      return json(req, list.map(c => ({ id: c.id, name: c.name, pic: c.pic, text: c.text, ts: c.ts })));
+    }
     if (req.method !== 'POST') return json(req, { ok: true, service: 'sacredabsurd-member' });
-    const path = new URL(req.url).pathname;
     let body = {};
     try { body = await req.json(); } catch (e) {}
+    const admins = String(env.ADMINS || '').split(',').map(x => x.trim()).filter(Boolean);
+    if (path.startsWith('/comments/')) {
+      const pr = await profile(body.token);
+      if (!pr || !pr.userId) return json(req, { error: 'unauthorized' }, 401);
+      const ep = parseInt(body.ep, 10);
+      if (!(ep > 0 && ep < 10000)) return json(req, { error: 'bad ep' }, 400);
+      const key = 'c:' + ep;
+      const list = (await env.PROGRESS.get(key, 'json')) || [];
+      const isAdmin = admins.includes(pr.userId);
+      if (path === '/comments/add') {
+        const text = String(body.text || '').trim().slice(0, 600);
+        if (!text) return json(req, { error: 'empty' }, 400);
+        if (!isAdmin && await env.PROGRESS.get('rl:' + pr.userId)) return json(req, { error: 'slow down' }, 429);
+        const c = { id: crypto.randomUUID().slice(0, 8), uid: pr.userId, name: String(pr.displayName || 'ผู้อ่าน').slice(0, 40), pic: pr.pictureUrl || '', text, ts: Date.now() };
+        list.push(c); if (list.length > 500) list.shift();
+        await env.PROGRESS.put(key, JSON.stringify(list));
+        if (!isAdmin) await env.PROGRESS.put('rl:' + pr.userId, '1', { expirationTtl: 60 });
+        return json(req, { id: c.id, name: c.name, pic: c.pic, text: c.text, ts: c.ts, mine: true });
+      }
+      if (path === '/comments/mine') {
+        return json(req, { admin: isAdmin, ids: list.filter(c => c.uid === pr.userId).map(c => c.id) });
+      }
+      if (path === '/comments/del') {
+        const i = list.findIndex(c => c.id === body.id);
+        if (i < 0) return json(req, { error: 'not found' }, 404);
+        if (list[i].uid !== pr.userId && !isAdmin) return json(req, { error: 'forbidden' }, 403);
+        list.splice(i, 1); await env.PROGRESS.put(key, JSON.stringify(list));
+        return json(req, { ok: true });
+      }
+      return json(req, { error: 'not found' }, 404);
+    }
+    if (path === '/whoami') {
+      const pr = await profile(body.token);
+      return pr ? json(req, { uid: pr.userId, name: pr.displayName }) : json(req, { error: 'unauthorized' }, 401);
+    }
     const uid = await userId(body.token);
     if (!uid) return json(req, { error: 'unauthorized' }, 401);
     const key = 'p:' + uid;
