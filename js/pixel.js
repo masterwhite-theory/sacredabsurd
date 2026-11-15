@@ -28,9 +28,9 @@ function load(){
 function banner(){
   var b=document.createElement('div'); b.className='consent-bar'; b.setAttribute('role','dialog'); b.setAttribute('aria-label','การใช้คุกกี้');
   b.innerHTML='<p>เว็บนี้ใช้คุกกี้เพื่อวัดผลและนำเสนอเนื้อหาที่ตรงใจคุณมากขึ้น <span>คุณเลือกได้ว่าจะอนุญาตหรือไม่</span></p><div><button type="button" class="consent-no">ไม่อนุญาต</button><button type="button" class="consent-yes">ยอมรับ</button></div>';
-  document.body.appendChild(b);
-  b.querySelector('.consent-yes').onclick=function(){set('yes');b.remove();load();};
-  b.querySelector('.consent-no').onclick=function(){set('no');b.remove();};
+  document.body.appendChild(b); document.body.classList.add('has-consent');
+  b.querySelector('.consent-yes').onclick=function(){set('yes');b.remove();document.body.classList.remove('has-consent');load();};
+  b.querySelector('.consent-no').onclick=function(){set('no');b.remove();document.body.classList.remove('has-consent');};
 }
 var c=get();
 if(c==='yes') load(); else if(c!=='no'){ if(document.body) banner(); else addEventListener('DOMContentLoaded',banner); }
