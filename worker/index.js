@@ -26,10 +26,36 @@ async function userId(token) {
   if (!p.ok) return null;
   return (await p.json()).userId || null;
 }
+const RECENT = 'c:recent', RECENT_MAX = 30;
+async function recent(env) {
+  let list = await env.PROGRESS.get(RECENT, 'json');
+  if (list) return list;
+  // first call: rebuild from every episode's comment list
+  list = [];
+  let cursor;
+  do {
+    const r = await env.PROGRESS.list({ prefix: 'c:', cursor });
+    for (const k of r.keys) {
+      const ep = parseInt(k.name.slice(2), 10);
+      if (!(ep > 0)) continue;
+      const cs = (await env.PROGRESS.get(k.name, 'json')) || [];
+      for (const c of cs) list.push({ ep, id: c.id, name: c.name, pic: c.pic, text: c.text, ts: c.ts });
+    }
+    cursor = r.list_complete ? null : r.cursor;
+  } while (cursor);
+  list.sort((x, y) => y.ts - x.ts); list = list.slice(0, RECENT_MAX);
+  await env.PROGRESS.put(RECENT, JSON.stringify(list));
+  return list;
+}
 export default {
   async fetch(req, env) {
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors(req) });
     const url = new URL(req.url), path = url.pathname;
+    if (req.method === 'GET' && path === '/comments/latest') {
+      const lim = Math.min(Math.max(parseInt(url.searchParams.get('limit'), 10) || 8, 1), 20);
+      const list = await recent(env);
+      return json(req, list.slice(0, lim).map(c => ({ ep: c.ep, id: c.id, name: c.name, pic: c.pic, text: c.text, ts: c.ts })));
+    }
     if (req.method === 'GET' && path === '/comments') {
       const ep = parseInt(url.searchParams.get('ep'), 10);
       if (!(ep > 0 && ep < 10000)) return json(req, { error: 'bad ep' }, 400);
@@ -56,6 +82,7 @@ export default {
         list.push(c); if (list.length > 500) list.shift();
         await env.PROGRESS.put(key, JSON.stringify(list));
         if (!isAdmin) await env.PROGRESS.put('rl:' + pr.userId, '1', { expirationTtl: 60 });
+        const rc = (await recent(env)).filter(x => x.id !== c.id); rc.unshift({ ep, id: c.id, name: c.name, pic: c.pic, text: c.text, ts: c.ts }); await env.PROGRESS.put(RECENT, JSON.stringify(rc.slice(0, RECENT_MAX)));
         return json(req, { id: c.id, name: c.name, pic: c.pic, text: c.text, ts: c.ts, mine: true });
       }
       if (path === '/comments/mine') {
@@ -66,6 +93,7 @@ export default {
         if (i < 0) return json(req, { error: 'not found' }, 404);
         if (list[i].uid !== pr.userId && !isAdmin) return json(req, { error: 'forbidden' }, 403);
         list.splice(i, 1); await env.PROGRESS.put(key, JSON.stringify(list));
+        const rc = await recent(env); const j = rc.findIndex(c => c.id === body.id && c.ep === ep); if (j >= 0) { rc.splice(j, 1); await env.PROGRESS.put(RECENT, JSON.stringify(rc)); }
         return json(req, { ok: true });
       }
       return json(req, { error: 'not found' }, 404);
