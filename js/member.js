@@ -45,27 +45,25 @@ function hero(){
 
 // ---- comments ----
 const epN=page==='chapter'?parseInt(new URLSearchParams(location.search).get('n'),10):0;
-const cSlug=t=>String(t||'').toUpperCase().normalize('NFKC').replace(/[’'`]/g,'').replace(/[^A-Z0-9\u0E00-\u0E7F]+/g,'-').replace(/^-+|-+$/g,'').slice(0,140);
-const cKey=(()=>{const c=((window.SACRED_DATA||{}).chapters||[]).find(x=>x.n===epN);return c?cSlug(c.title):'';})();
 let mine={admin:false,ids:[]};
 function ago(ts){const d=(Date.now()-ts)/1000;if(d<60)return 'เมื่อสักครู่';if(d<3600)return Math.floor(d/60)+' นาทีที่แล้ว';if(d<86400)return Math.floor(d/3600)+' ชั่วโมงที่แล้ว';if(d<86400*30)return Math.floor(d/86400)+' วันที่แล้ว';return new Date(ts).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});}
 function cItem(c){const li=document.createElement('li');li.className='c-item';li.dataset.id=c.id;
  li.innerHTML='<div class="c-av"></div><div class="c-main"><p class="c-head"><b></b><span></span></p><p class="c-text"></p></div>';
  const av=li.querySelector('.c-av');if(c.pic){const im=document.createElement('img');im.src=c.pic;im.alt='';av.appendChild(im);}else av.textContent=(c.name||'?').slice(0,1);
  li.querySelector('b').textContent=c.name;li.querySelector('.c-head span').textContent=ago(c.ts);li.querySelector('.c-text').textContent=c.text;
- if(mine.admin||mine.ids.includes(c.id)){const d=document.createElement('button');d.type='button';d.className='c-del';d.textContent='ลบ';d.onclick=async()=>{{d.disabled=true;const r=await fetch(M.api+'/comments/del',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:liff.getAccessToken(),key:cKey,ep:epN,id:c.id})});if(r.ok)li.remove();else d.disabled=false;}};li.querySelector('.c-head').appendChild(d);}
+ if(mine.admin||mine.ids.includes(c.id)){const d=document.createElement('button');d.type='button';d.className='c-del';d.textContent='ลบ';d.onclick=async()=>{{d.disabled=true;const r=await fetch(M.api+'/comments/del',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:liff.getAccessToken(),ep:epN,id:c.id})});if(r.ok)li.remove();else d.disabled=false;}};li.querySelector('.c-head').appendChild(d);}
  return li;}
-async function cLoad(){const L=$('#c-list');if(!L)return;try{const r=await fetch(M.api+'/comments?key='+encodeURIComponent(cKey)+'&ep='+epN);const a=r.ok?await r.json():[];L.innerHTML='';a.forEach(c=>L.appendChild(cItem(c)));$('#c-count').textContent=a.length?'('+a.length+')':'';$('#c-empty').hidden=!!a.length;}catch(e){}}
+async function cLoad(){const L=$('#c-list');if(!L)return;try{const r=await fetch(M.api+'/comments?ep='+epN);const a=r.ok?await r.json():[];L.innerHTML='';a.forEach(c=>L.appendChild(cItem(c)));$('#c-count').textContent=a.length?'('+a.length+')':'';$('#c-empty').hidden=!!a.length;}catch(e){}}
 function cForm(){const F=$('#c-form');if(!F)return;
  if(!profile){F.innerHTML='<button type="button" class="resume-login c-login"><span class="line-dot">LINE</span> เข้าสู่ระบบด้วย LINE เพื่อแสดงความคิดเห็น</button>';F.querySelector('button').onclick=login;return;}
  F.innerHTML='<div class="c-me"><img alt=""><b></b></div><textarea maxlength="600" rows="3" placeholder="คิดยังไงกับตอนนี้ เล่าให้ฟังหน่อย"></textarea><div class="c-actions"><span class="c-msg"></span><button type="button" class="button primary c-post">ส่งความคิดเห็น</button></div>';
  F.querySelector('img').src=profile.pictureUrl||'';F.querySelector('b').textContent=profile.displayName||'';
  const ta=F.querySelector('textarea'),bt=F.querySelector('.c-post'),msg=F.querySelector('.c-msg');
  bt.onclick=async()=>{const t=ta.value.trim();if(!t)return;bt.disabled=true;msg.textContent='';
-  try{const r=await fetch(M.api+'/comments/add',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:liff.getAccessToken(),key:cKey,ep:epN,text:t})});
+  try{const r=await fetch(M.api+'/comments/add',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:liff.getAccessToken(),ep:epN,text:t})});
    if(r.status===429)msg.textContent='รอสักครู่ค่อยส่งใหม่นะคะ';else if(!r.ok)msg.textContent='ส่งไม่สำเร็จ ลองใหม่อีกครั้ง';else{const c=await r.json();mine.ids.push(c.id);$('#c-list').appendChild(cItem(c));$('#c-empty').hidden=true;ta.value='';}
   }catch(e){msg.textContent='ส่งไม่สำเร็จ ลองใหม่อีกครั้ง';}bt.disabled=false;};}
-async function cMine(){try{const r=await fetch(M.api+'/comments/mine',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:liff.getAccessToken(),key:cKey,ep:epN})});if(r.ok){mine=await r.json();cLoad();}}catch(e){}}
+async function cMine(){try{const r=await fetch(M.api+'/comments/mine',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:liff.getAccessToken(),ep:epN})});if(r.ok){mine=await r.json();cLoad();}}catch(e){}}
 async function whoami(){if(location.hash!=='#admin'||!profile)return;try{const r=await fetch(M.api+'/whoami',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({token:liff.getAccessToken()})});const j=await r.json();const p=$('.member-pop');if(p&&j.uid){const x=document.createElement('p');x.className='member-note';x.textContent='User ID: '+j.uid;p.appendChild(x);p.hidden=false;}}catch(e){}}
 if(epN&&M.api&&$('#comments')){$('#comments').hidden=false;cLoad();cForm();}
 btn();hero();
